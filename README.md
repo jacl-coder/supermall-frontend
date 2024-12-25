@@ -18,6 +18,7 @@
 | ECharts | 图表框架 | https://echarts.apache.org/ |
 
 ### 项目结构
+```bash
 src/
   ├── components/     # 公共组件
       ├── common/     # 通用组件
@@ -57,6 +58,7 @@ src/
       ├── variables.scss  # 全局变量
       ├── mixin.scss     # 混入
       └── common.scss    # 公共样式
+```
 
 ### 功能模块
 
@@ -152,7 +154,7 @@ src/
 ## 项目运行
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/supermall-frontend.git
+git clone https://github.com/jacl-coder/supermall-frontend.git
 
 # 进入项目目录
 cd supermall-frontend
@@ -170,17 +172,6 @@ npm run build
 npm run lint
 ```
 
-## 项目部署
-
-### 开发环境
-- 开发服务器：localhost:8080
-
-### 测试环境
-- 测试服务器：test.example.com
-
-### 生产环境
-- 生产服务器：www.example.com
-
 ## 注意事项
 1. 遵循组件化开发原则
 2. 保持代码规范统一
@@ -194,17 +185,6 @@ npm run lint
 - [项目文档](docs/index.md)
 - [开发规范](docs/standard.md)
 - [常见问题](docs/faq.md)
-
-## 版本历史
-- v0.1.0 项目初始化
-- v0.2.0 完成基础框架搭建
-- v0.3.0 完成核心功能开发
-- v1.0.0 完成第一个正式版本
-
-## 团队成员
-- 产品经理：xxx
-- 前端开发：xxx
-- UI设计：xxx
 
 ## 许可证
 [MIT](LICENSE)
