@@ -1,0 +1,24 @@
+# 设置默认行为，如果没有设置其他规则则生效
+* text=auto
+
+# 明确声明要使用 CRLF 的文件
+*.js text eol=crlf
+*.jsx text eol=crlf
+*.ts text eol=crlf
+*.tsx text eol=crlf
+*.vue text eol=crlf
+*.css text eol=crlf
+*.scss text eol=crlf
+*.html text eol=crlf
+*.json text eol=crlf
+*.md text eol=crlf
+
+# 二进制文件，不进行转换
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary 

@@ -1,0 +1,19 @@
+// 重置样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// 全局变量
+:root {
+  --primary-color: #409EFF;
+  --text-color: #333;
+}
+
+// 全局通用样式
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+} 
