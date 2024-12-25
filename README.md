@@ -17,8 +17,8 @@
 | Axios | HTTP工具 | https://axios-http.com/ |
 | ECharts | 图表框架 | https://echarts.apache.org/ |
 
+```
 ### 项目结构
-```bash
 src/
   ├── components/     # 公共组件
       ├── common/     # 通用组件
@@ -31,15 +31,68 @@ src/
   ├── views/          # 页面组件
       ├── admin/      # 后台管理
           ├── product/     # 商品管理
+              ├── ProductList.vue     # 商品列表
+              ├── ProductCategory.vue # 商品分类
+              ├── ProductBrand.vue    # 品牌管理
+              ├── ProductSpec.vue     # 商品规格
+              └── ProductParam.vue    # 商品参数
           ├── order/       # 订单管理
-          └── user/        # 用户管理
+              ├── OrderList.vue       # 订单列表
+              ├── OrderSetting.vue    # 订单设置
+              ├── OrderReturn.vue     # 退货管理
+              ├── OrderDelivery.vue   # 发货管理
+              └── OrderStatistics.vue # 订单统计
+          ├── user/        # 用户管理
+              ├── UserList.vue        # 用户列表
+              ├── UserLevel.vue       # 用户等级
+              ├── UserPoints.vue      # 积分管理
+              └── UserStatistics.vue  # 会员统计
+          ├── permission/  # 权限管理
+              ├── Role.vue           # 用户角色
+              ├── Menu.vue           # 菜单管理
+              ├── Resource.vue       # 资源管理
+              └── Allocation.vue     # 权限分配
+          └── marketing/   # 营销管理
+              ├── Flash.vue          # 秒杀活动
+              ├── Coupon.vue         # 优惠券管理
+              ├── Activity.vue       # 活动管理
+              └── Advertise.vue      # 广告管理
       └── mall/       # 商城前台
           ├── home/        # 首页
+              ├── Search.vue         # 商品搜索
+              ├── Category.vue       # 商品分类
+              ├── Recommend.vue      # 商品推荐
+              ├── Carousel.vue       # 广告轮播
+              └── FlashSale.vue      # 秒杀专区
           ├── product/     # 商品
-          └── cart/        # 购物车
+              ├── Detail.vue         # 商品详情
+              ├── Review.vue         # 商品评价
+              ├── Favorite.vue       # 商品收藏
+              ├── Compare.vue        # 商品对比
+              └── Consult.vue        # 商品咨询
+          ├── cart/        # 购物车
+              ├── CartList.vue       # 购物车管理
+              ├── CartCoupon.vue     # 优惠券
+              ├── Checkout.vue       # 结算
+              └── Payment.vue        # 支付功能
+          └── order/       # 订单中心
+              ├── MyOrder.vue        # 我的订单
+              ├── ReturnApply.vue    # 退货申请
+              ├── Address.vue        # 收货地址
+              ├── MyFavorite.vue     # 我的收藏
+              └── MyFootprint.vue    # 我的足迹
   ├── api/            # 接口请求
       ├── admin/      # 后台接口
+          ├── product.js     # 商品接口
+          ├── order.js       # 订单接口
+          ├── user.js        # 用户接口
+          ├── permission.js  # 权限接口
+          └── marketing.js   # 营销接口
       └── mall/       # 前台接口
+          ├── home.js        # 首页接口
+          ├── product.js     # 商品接口
+          ├── cart.js        # 购物车接口
+          └── order.js       # 订单接口
   ├── utils/          # 工具函数
       ├── request.js       # axios封装
       ├── auth.js         # 权限相关
