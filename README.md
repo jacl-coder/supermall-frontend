@@ -17,8 +17,8 @@
 | Axios | HTTP工具 | https://axios-http.com/ |
 | ECharts | 图表框架 | https://echarts.apache.org/ |
 
-```
 ### 项目结构
+```
 src/
   ├── components/     # 公共组件
       ├── common/     # 通用组件
