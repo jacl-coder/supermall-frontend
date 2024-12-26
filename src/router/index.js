@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import mallRoutes from './mall'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
+    name: 'HomePage',
     component: () => import('@/views/Home.vue')
-  }
-  // 其他路由配置
+  },
+  ...mallRoutes
 ]
 
 const router = createRouter({
