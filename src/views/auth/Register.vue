@@ -1,14 +1,14 @@
 <template>
-  <div class="register-page">
-    <div class="register-box">
+  <div class="register-container">
+    <el-card class="register-card">
       <el-form 
         ref="formRef" 
-        :model="formData" 
-        :rules="rules"
-        @submit.prevent="handleSubmit" 
-        class="register-form"
+        :model="formData"
+        :rules="rules" 
+        label-position="top"
+        size="large"
       >
-        <h2 class="form-title">用户注册</h2>
+        <h2 class="title">用户注册</h2>
         
         <!-- 步骤指示器 -->
         <el-steps :active="currentStep" finish-status="success" class="step-indicator">
@@ -18,85 +18,84 @@
         </el-steps>
 
         <!-- 第一步：填写信息 -->
-        <div v-if="currentStep === 1" class="step-content">
-          <el-form-item prop="username">
+        <div v-if="currentStep === 1">
+          <el-form-item prop="username" label="用户名">
             <el-input 
               v-model="formData.username" 
-              placeholder="请输入用户名" 
-              class="form-input"
+              placeholder="请输入用户名"
             />
           </el-form-item>
-          <el-form-item prop="password">
+          <el-form-item prop="password" label="密码">
             <el-input 
               v-model="formData.password" 
               type="password"
-              placeholder="请输入密码" 
-              class="form-input"
+              placeholder="请输入密码"
+              show-password
             />
           </el-form-item>
-          <el-form-item prop="confirmPassword">
+          <el-form-item prop="confirmPassword" label="确认密码">
             <el-input 
               v-model="formData.confirmPassword" 
               type="password"
-              placeholder="请确认密码" 
-              class="form-input"
+              placeholder="请确认密码"
+              show-password
             />
           </el-form-item>
-          <el-form-item prop="email">
+          <el-form-item prop="email" label="邮箱">
             <el-input 
               v-model="formData.email" 
-              placeholder="请输入邮箱" 
-              class="form-input"
+              placeholder="请输入邮箱"
             />
           </el-form-item>
-          <el-form-item prop="phone">
+          <el-form-item prop="phone" label="手机号">
             <el-input 
               v-model="formData.phone" 
-              placeholder="请输入手机号" 
-              class="form-input"
+              placeholder="请输入手机号"
             />
           </el-form-item>
         </div>
 
         <!-- 第二步：验证邮箱 -->
-        <div v-if="currentStep === 2" class="step-content">
-          <div class="verify-tip">
-            <p>验证码已发送至您的邮箱：</p>
-            <p class="email">{{ formData.email }}</p>
-          </div>
-          <el-form-item prop="verifyCode" class="verify-code-item">
+        <div v-if="currentStep === 2">
+          <el-alert
+            title="验证码已发送至您的邮箱"
+            :description="formData.email"
+            type="success"
+            :closable="false"
+            center
+            show-icon
+          />
+          <el-form-item prop="verifyCode" label="验证码">
             <el-input 
               v-model="formData.verifyCode" 
-              placeholder="请输入验证码" 
-              class="verify-input"
+              placeholder="请输入验证码"
               maxlength="6"
             />
-            <el-button 
-              type="primary" 
-              class="verify-btn" 
-              @click="sendVerifyCode" 
-              :disabled="cooldown > 0"
-            >
-              {{ cooldown > 0 ? `${cooldown}秒后重试` : '重新发送' }}
-            </el-button>
           </el-form-item>
         </div>
 
         <!-- 第三步：完成 -->
-        <div v-if="currentStep === 3" class="step-content success-content">
-          <el-icon class="success-icon" color="#4caf50" :size="80">
-            <CircleCheckFilled />
-          </el-icon>
-          <h3>注册成功！</h3>
-          <p>您的账号已经创建成功，现在可以登录了</p>
+        <div v-if="currentStep === 3">
+          <el-result
+            icon="success"
+            title="注册成功！"
+            sub-title="您的账号已经创建成功，现在可以登录了"
+          >
+          </el-result>
         </div>
 
         <!-- 按钮区域 -->
-        <div class="form-buttons">
+        <div class="button-group">
+          <el-button 
+            v-if="currentStep === 2" 
+            @click="backToStep1"
+            plain
+          >
+            返回上一步
+          </el-button>
           <el-button 
             v-if="currentStep < 3" 
             type="primary" 
-            class="submit-btn"
             @click="handleSubmit"
           >
             {{ currentStep === 2 ? '注册' : '下一步' }}
@@ -104,7 +103,6 @@
           <el-button 
             v-if="currentStep === 3" 
             type="primary" 
-            class="submit-btn"
             @click="goToLogin"
           >
             去登录
@@ -112,22 +110,18 @@
         </div>
 
         <!-- 返回登录链接 -->
-        <div class="form-links">
+        <div class="text-center">
           <el-link type="primary" @click="goToLogin">已有账号？返回登录</el-link>
         </div>
       </el-form>
-    </div>
+    </el-card>
   </div>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
-import { CircleCheckFilled } from '@element-plus/icons-vue'
 
 export default {
-  components: {
-    CircleCheckFilled
-  },
   data() {
     // 自定义校验规则
     const validatePass = (rule, value, callback) => {
@@ -146,7 +140,7 @@ export default {
       if (value === '') {
         callback(new Error('请再次输入密码'))
       } else if (value !== this.formData.password) {
-        callback(new Error('两次输入密码不一致!'))
+        callback(new Error('两次输入密码不一致！'))
       } else {
         callback()
       }
@@ -174,7 +168,6 @@ export default {
 
     return {
       currentStep: 1,
-      cooldown: 0,
       formData: {
         username: '',
         password: '',
@@ -213,34 +206,27 @@ export default {
         this.$refs.formRef.validate((valid) => {
           if (valid) {
             this.currentStep = 2
-            this.sendVerifyCode()
+            this.formData.verifyCode = '' // 清空验证码
+            // 这里添加发送验证码的API调用
+            ElMessage.success('验证码已发送到您的邮箱')
           }
         })
       } else if (this.currentStep === 2) {
-        if (this.formData.verifyCode) {
+        // 直接检查验证码长度
+        if (this.formData.verifyCode.length === 6) {
           // 这里添加验证码验证和注册的API调用
           setTimeout(() => {
             this.currentStep = 3
             ElMessage.success('注册成功')
           }, 1000)
         } else {
-          ElMessage.error('请输入验证码')
+          ElMessage.error('请输入6位验证码')
         }
       }
     },
-    sendVerifyCode() {
-      if (this.cooldown > 0) return
-      
-      this.cooldown = 60
-      const timer = setInterval(() => {
-        this.cooldown--
-        if (this.cooldown <= 0) {
-          clearInterval(timer)
-        }
-      }, 1000)
-      
-      // 这里添加发送验证码的API调用
-      ElMessage.success('验证码已发送到您的邮箱')
+    backToStep1() {
+      this.currentStep = 1
+      this.formData.verifyCode = '' // 清空验证码
     },
     goToLogin() {
       this.$router.push('/login')
@@ -250,7 +236,7 @@ export default {
 </script>
 
 <style scoped>
-.register-page {
+.register-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -263,56 +249,31 @@ export default {
   bottom: 0;
   padding: 20px;
   background: linear-gradient(135deg, #f0f7ff 0%, #e8fff3 100%);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
 }
 
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.register-box {
+.register-card {
+  width: 480px;
   background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 30px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  width: 500px;
-  max-width: 95%;
-  padding: 40px;
-  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
-.register-form {
-  width: 100%;
-}
-
-.form-title {
-  font-weight: 700;
-  margin: 0 0 2.5rem;
-  font-size: 32px;
-  color: #2c3e50;
-  letter-spacing: 0.5px;
-  position: relative;
+.title {
   text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #303133;
 }
 
-.form-title::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 3px;
-  background: linear-gradient(90deg, #4caf50, #45b649);
-  border-radius: 3px;
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.text-center {
+  text-align: center;
 }
 
 .step-indicator {
@@ -327,69 +288,11 @@ export default {
   --el-step-process-icon-color: #4caf50;
 }
 
-.verify-code-item {
-  display: flex;
-  gap: 10px;
-}
-
-.verify-input {
-  flex: 1;
-}
-
-.verify-btn {
-  width: 120px;
-}
-
-.verify-tip {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #666;
-}
-
-.verify-tip .email {
-  color: #4caf50;
-  font-weight: 500;
-  margin-top: 5px;
-}
-
-.form-buttons {
-  margin-top: 30px;
-}
-
-.submit-btn {
-  width: 100%;
-  height: 50px;
-  font-size: 16px;
-  background: linear-gradient(135deg, #4caf50 0%, #45b649 100%);
-  border: none;
-}
-
-.submit-btn:hover {
-  background: linear-gradient(135deg, #45b649 0%, #4caf50 100%);
-}
-
-.form-links {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.success-content {
-  text-align: center;
-  padding: 30px 0;
-}
-
-.success-icon {
+:deep(.el-alert) {
   margin-bottom: 20px;
 }
 
-.success-content h3 {
-  color: #2c3e50;
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.success-content p {
-  color: #666;
-  font-size: 16px;
+:deep(.el-form-item__label) {
+  font-weight: bold;
 }
 </style>

@@ -37,10 +37,6 @@
               <el-icon><Star /></el-icon>
               我的收藏
             </el-button>
-            <el-button text>
-              <el-icon><Location /></el-icon>
-              收货地址
-            </el-button>
             <el-badge :value="cartCount" :max="99" class="cart-badge">
               <el-button text>
                 <el-icon><ShoppingCart /></el-icon>
@@ -157,8 +153,8 @@
 import { ref } from 'vue'
 import { 
   HomeFilled, Search, User, ShoppingCart, Menu, 
-  ArrowRight, Picture, Star, List, Location,
-  CaretBottom
+  ArrowRight, Picture, Star, List,
+  CaretBottom, House, Box, KnifeFork, Goods, SetUp
 } from '@element-plus/icons-vue'
 
 const searchText = ref('')
@@ -180,7 +176,7 @@ const categories = [
 const carouselItems = [
   {
     id: 1,
-    title: '��约��欧风',
+    title: '简约北欧风',
     description: '打造温馨舒适的居家环境',
     image: 'https://example.com/carousel1.jpg'
   },

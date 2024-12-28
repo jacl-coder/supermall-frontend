@@ -1,179 +1,218 @@
 <template>
-  <div class="forget-page">
-    <div class="forget-box">
+  <div class="forget-container">
+    <el-card class="forget-card">
       <el-form 
         ref="formRef" 
-        :model="formData" 
-        @submit.prevent="handleSubmit" 
-        class="forget-form"
+        :model="formData"
+        :rules="rules" 
+        label-position="top"
+        size="large"
       >
-        <h2 class="form-title">找回密码</h2>
+        <h2 class="title">找回密码</h2>
         
         <!-- 步骤指示器 -->
         <el-steps :active="currentStep" finish-status="success" class="step-indicator">
-          <el-step title="验证账号" />
+          <el-step title="验证身份" />
           <el-step title="重置密码" />
           <el-step title="完成" />
         </el-steps>
 
-        <!-- 第一步：验证账号 -->
-        <div v-if="currentStep === 1" class="step-content">
-          <el-form-item prop="username">
-            <el-input 
-              v-model="formData.username" 
-              placeholder="请输入用户名" 
-              class="form-input"
-            />
-          </el-form-item>
-          <el-form-item prop="email">
+        <!-- 第一步：验证身份 -->
+        <div v-if="currentStep === 1">
+          <el-form-item prop="email" label="邮箱">
             <el-input 
               v-model="formData.email" 
-              placeholder="请输入注册邮箱" 
-              class="form-input"
+              placeholder="请输入注册时使用的邮箱"
             />
           </el-form-item>
-          <el-form-item prop="verifyCode" class="verify-code-item">
-            <el-input 
-              v-model="formData.verifyCode" 
-              placeholder="请输入验证码" 
-              class="verify-input"
-            />
-            <el-button 
-              type="primary" 
-              class="verify-btn" 
-              @click="sendVerifyCode" 
-              :disabled="cooldown > 0"
-            >
-              {{ cooldown > 0 ? `${cooldown}秒后重试` : '获取验证码' }}
-            </el-button>
+          <el-form-item prop="verifyCode" label="验证码">
+            <div class="verify-code-container">
+              <el-input 
+                v-model="formData.verifyCode" 
+                placeholder="请输入验证码"
+                maxlength="6"
+              />
+              <el-button 
+                type="primary" 
+                :disabled="cooldown > 0"
+                @click="sendVerifyCode"
+              >
+                {{ cooldown > 0 ? `${cooldown}秒后重试` : '获取验证码' }}
+              </el-button>
+            </div>
           </el-form-item>
         </div>
 
         <!-- 第二步：重置密码 -->
-        <div v-if="currentStep === 2" class="step-content">
-          <el-form-item prop="newPassword">
+        <div v-if="currentStep === 2">
+          <el-form-item prop="password" label="新密码">
             <el-input 
-              v-model="formData.newPassword" 
+              v-model="formData.password" 
               type="password"
-              placeholder="请输入新密码" 
-              class="form-input"
+              placeholder="请输入新密码"
+              show-password
             />
           </el-form-item>
-          <el-form-item prop="confirmPassword">
+          <el-form-item prop="confirmPassword" label="确认新密码">
             <el-input 
               v-model="formData.confirmPassword" 
               type="password"
-              placeholder="请确认新密码" 
-              class="form-input"
+              placeholder="请确认新密码"
+              show-password
             />
           </el-form-item>
         </div>
 
         <!-- 第三步：完成 -->
-        <div v-if="currentStep === 3" class="step-content success-content">
-          <el-icon class="success-icon" color="#4caf50" :size="80">
-            <CircleCheckFilled />
-          </el-icon>
-          <h3>密码重置成功！</h3>
-          <p>请使用新密码登录您的账号</p>
+        <div v-if="currentStep === 3">
+          <el-result
+            icon="success"
+            title="密码重置成功！"
+            sub-title="您的密码已经重置成功，现在可以使用新密码登录了"
+          >
+          </el-result>
         </div>
 
         <!-- 按钮区域 -->
-        <div class="form-buttons">
+        <div class="button-group">
+          <el-button 
+            v-if="currentStep === 2" 
+            @click="backToPrevStep"
+            plain
+          >
+            返回上一步
+          </el-button>
           <el-button 
             v-if="currentStep < 3" 
             type="primary" 
-            class="submit-btn"
             @click="handleSubmit"
           >
-            {{ currentStep === 2 ? '确认修改' : '下一步' }}
+            {{ currentStep === 2 ? '确认重置' : '下一步' }}
           </el-button>
           <el-button 
             v-if="currentStep === 3" 
             type="primary" 
-            class="submit-btn"
             @click="goToLogin"
           >
-            返回登录
+            去登录
           </el-button>
         </div>
 
         <!-- 返回登录链接 -->
-        <div class="form-links">
+        <div class="text-center">
           <el-link type="primary" @click="goToLogin">返回登录</el-link>
         </div>
       </el-form>
-    </div>
+    </el-card>
   </div>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
-import { CircleCheckFilled } from '@element-plus/icons-vue'
 
 export default {
-  components: {
-    CircleCheckFilled
-  },
   data() {
+    // 自定义校验规则
+    const validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else if (value.length < 6) {
+        callback(new Error('密码长度不能小于6位'))
+      } else {
+        if (this.formData.confirmPassword !== '') {
+          this.$refs.formRef.validateField('confirmPassword')
+        }
+        callback()
+      }
+    }
+    const validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.formData.password) {
+        callback(new Error('两次输入密码不一致！'))
+      } else {
+        callback()
+      }
+    }
+    const validateEmail = (rule, value, callback) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (value === '') {
+        callback(new Error('请输入邮箱'))
+      } else if (!emailRegex.test(value)) {
+        callback(new Error('请输入正确的邮箱格式'))
+      } else {
+        callback()
+      }
+    }
+
     return {
       currentStep: 1,
       cooldown: 0,
       formData: {
-        username: '',
         email: '',
         verifyCode: '',
-        newPassword: '',
+        password: '',
         confirmPassword: ''
+      },
+      rules: {
+        email: [
+          { validator: validateEmail, trigger: 'blur' }
+        ],
+        verifyCode: [
+          { required: true, message: '请输入验证码', trigger: 'blur' },
+          { len: 6, message: '验证码长度为6位', trigger: 'blur' }
+        ],
+        password: [
+          { validator: validatePass, trigger: 'blur' }
+        ],
+        confirmPassword: [
+          { validator: validatePass2, trigger: 'blur' }
+        ]
       }
     }
   },
   methods: {
+    sendVerifyCode() {
+      if (this.cooldown > 0) return
+      
+      this.$refs.formRef.validateField('email', (valid) => {
+        if (valid) {
+          // 发送验证码的API调用
+          this.cooldown = 60
+          const timer = setInterval(() => {
+            this.cooldown--
+            if (this.cooldown <= 0) {
+              clearInterval(timer)
+            }
+          }, 1000)
+          ElMessage.success('验证码已发送到您的邮箱')
+        }
+      })
+    },
     handleSubmit() {
       if (this.currentStep === 1) {
-        if (this.validateStep1()) {
-          this.currentStep = 2
-        }
+        this.$refs.formRef.validateField(['email', 'verifyCode'], (valid) => {
+          if (valid) {
+            // 验证验证码的API调用
+            this.currentStep = 2
+          }
+        })
       } else if (this.currentStep === 2) {
-        if (this.validateStep2()) {
-          this.resetPassword()
-        }
+        this.$refs.formRef.validateField(['password', 'confirmPassword'], (valid) => {
+          if (valid) {
+            // 重置密码的API调用
+            setTimeout(() => {
+              this.currentStep = 3
+              ElMessage.success('密码重置成功')
+            }, 1000)
+          }
+        })
       }
     },
-    validateStep1() {
-      if (!this.formData.username || !this.formData.email || !this.formData.verifyCode) {
-        ElMessage.error('请填写完整信息')
-        return false
-      }
-      return true
-    },
-    validateStep2() {
-      if (!this.formData.newPassword || !this.formData.confirmPassword) {
-        ElMessage.error('请填写完整信息')
-        return false
-      }
-      if (this.formData.newPassword !== this.formData.confirmPassword) {
-        ElMessage.error('两次输入的密码不一致')
-        return false
-      }
-      return true
-    },
-    sendVerifyCode() {
-      this.cooldown = 60
-      const timer = setInterval(() => {
-        this.cooldown--
-        if (this.cooldown <= 0) {
-          clearInterval(timer)
-        }
-      }, 1000)
-      
-      ElMessage.success('验证码已发送到您的邮箱')
-    },
-    resetPassword() {
-      setTimeout(() => {
-        this.currentStep = 3
-        ElMessage.success('密码重置成功')
-      }, 1000)
+    backToPrevStep() {
+      this.currentStep--
+      this.formData.password = ''
+      this.formData.confirmPassword = ''
     },
     goToLogin() {
       this.$router.push('/login')
@@ -183,7 +222,7 @@ export default {
 </script>
 
 <style scoped>
-.forget-page {
+.forget-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -195,123 +234,48 @@ export default {
   right: 0;
   bottom: 0;
   padding: 20px;
-  background: linear-gradient(135deg, #f0f7ff 0%, #e8fff3 100%);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
+  background-color: #f5f7fa;
 }
 
-.forget-box {
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 30px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  width: 500px;
-  max-width: 95%;
-  padding: 40px;
-  backdrop-filter: blur(10px);
-}
-
-.forget-form {
+.forget-card {
   width: 100%;
+  max-width: 480px;
 }
 
-.form-title {
-  font-weight: 700;
-  margin: 0 0 2.5rem;
-  font-size: 32px;
-  color: #2c3e50;
-  letter-spacing: 0.5px;
-  position: relative;
+.title {
   text-align: center;
-}
-
-.form-title::after {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 50px;
-  height: 3px;
-  background: linear-gradient(90deg, #4caf50, #45b649);
-  border-radius: 3px;
+  margin-bottom: 30px;
+  color: #303133;
 }
 
 .step-indicator {
-  margin: 40px 0;
+  margin: 20px 0 30px;
 }
 
-:deep(.el-steps) {
-  --el-step-success-text-color: #4caf50;
-  --el-step-success-icon-color: #4caf50;
-  --el-step-finish-line-color: #4caf50;
-  --el-step-process-text-color: #4caf50;
-  --el-step-process-icon-color: #4caf50;
-}
-
-.verify-code-item {
+.button-group {
   display: flex;
-  gap: 10px;
-}
-
-.verify-input {
-  flex: 1;
-}
-
-.verify-btn {
-  width: 120px;
-}
-
-.form-buttons {
+  justify-content: center;
+  gap: 20px;
   margin-top: 30px;
 }
 
-.submit-btn {
-  width: 100%;
-  height: 50px;
-  font-size: 16px;
-  background: linear-gradient(135deg, #4caf50 0%, #45b649 100%);
-  border: none;
-}
-
-.submit-btn:hover {
-  background: linear-gradient(135deg, #45b649 0%, #4caf50 100%);
-}
-
-.form-links {
+.text-center {
   text-align: center;
   margin-top: 20px;
 }
 
-.success-content {
-  text-align: center;
-  padding: 30px 0;
+.verify-code-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
 }
 
-.success-icon {
-  margin-bottom: 20px;
+.verify-code-container .el-input {
+  flex: 1;
 }
 
-.success-content h3 {
-  color: #2c3e50;
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.success-content p {
-  color: #666;
-  font-size: 16px;
-}
-
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.verify-code-container .el-button {
+  width: 120px;
+  flex-shrink: 0;
 }
 </style>
-  
