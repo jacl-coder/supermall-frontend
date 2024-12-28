@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-
-  // 认证相关路由
+  {
+    path: '/',
+    redirect: '/login'
+  },
   {
     path: '/login',
     name: 'Login',
@@ -18,7 +20,6 @@ const routes = [
     name: 'Forget',
     component: () => import('@/views/auth/forget.vue')
   },
-  // 商城相关路由
   {
     path: '/home',
     name: 'Home',
@@ -39,14 +40,14 @@ const routes = [
     name: 'Pay',
     component: () => import('@/views/mall/Pay.vue')
   },
-  // 管理后台路由
   {
     path: '/admin',
     name: 'Admin',
-    component: () => import('@/views/admin/Home.vue'),
+    component: () => import('@/views/admin/admin.vue'),
+    redirect: '/admin/dashboard',
     children: [
       {
-        path: '',
+        path: 'dashboard',
         name: 'AdminDashboard',
         component: () => import('@/views/admin/Dashboard.vue')
       },
@@ -66,11 +67,15 @@ const routes = [
         component: () => import('@/views/admin/users/List.vue')
       }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login'
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(),
   routes
 })
 

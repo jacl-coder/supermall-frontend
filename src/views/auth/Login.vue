@@ -4,7 +4,7 @@
       <!-- 用户登录表单 -->
       <div class="login-form user-form">
         <el-form 
-          ref="userForm"
+          ref="userFormRef"
           :model="formData.user" 
           :rules="rules"
           class="form"
@@ -44,7 +44,7 @@
       <!-- 管理员登录表单 -->
       <div class="login-form admin-form">
         <el-form 
-          ref="adminForm"
+          ref="adminFormRef"
           :model="formData.admin" 
           :rules="rules" 
           class="form"
@@ -96,89 +96,100 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { User, Lock } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 
-export default {
-  name: 'Login',
-  components: {
-    User,
-    Lock
+const router = useRouter()
+const loading = ref(false)
+const isRightPanelActive = ref(false)
+const userFormRef = ref(null)
+const adminFormRef = ref(null)
+
+const formData = reactive({
+  user: {
+    username: '',
+    password: ''
   },
-  data() {
-    return {
-      loading: false,
-      isRightPanelActive: false,
-      formData: {
-        user: {
-          username: '',
-          password: ''
-        },
-        admin: {
-          username: '',
-          password: ''
-        }
-      },
-      rules: {
-        username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' },
-          { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
-        ],
-        password: [
-          { required: true, message: '请输入密码', trigger: 'blur' },
-          { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
-        ]
-      }
-    }
-  },
-  methods: {
-    // 切换登录面板
-    togglePanel(type) {
-      this.isRightPanelActive = (type === 'admin')
-      // 切换时重置表单
-      this.resetForm(type)
-    },
-    // 重置表单
-    resetForm(type) {
-      const formRef = type === 'user' ? 'userForm' : 'adminForm'
-      if (this.$refs[formRef]) {
-        this.$refs[formRef].resetFields()
-      }
-      this.formData[type] = {
-        username: '',
-        password: ''
-      }
-    },
-    // 处理登录
-    handleLogin(type) {
-      const formRef = type === 'user' ? 'userForm' : 'adminForm'
-      this.$refs[formRef].validate((valid) => {
-        if (valid) {
-          this.loading = true
-          const formData = this.formData[type]
-          
-          // 模拟登录请求
-          setTimeout(() => {
-            if (type === 'user') {
-              // 普通用户登录 - 跳转到商城首页
-              ElMessage.success('登录成功')
-              this.$router.push('/home')
-            } else {
-              // 管理员登录 - 验证账号密码并跳转到管理后台
-              if (formData.username === 'admin' && formData.password === '123456') {
-                ElMessage.success('管理员登录成功')
-                this.$router.push('/admin')
-              } else {
-                ElMessage.error('管理员账号或密码错误')
-              }
-            }
-            this.loading = false
-          }, 1000)
-        }
-      })
-    }
+  admin: {
+    username: '',
+    password: ''
   }
+})
+
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' }
+  ]
+}
+
+// 切换登录面板
+const togglePanel = (type) => {
+  isRightPanelActive.value = (type === 'admin')
+  // 切换时重置表单
+  resetForm(type)
+}
+
+// 重置表单
+const resetForm = (type) => {
+  const formRef = type === 'user' ? userFormRef.value : adminFormRef.value
+  if (formRef) {
+    formRef.resetFields()
+  }
+  formData[type] = {
+    username: '',
+    password: ''
+  }
+}
+
+// 处理登录
+const handleLogin = async (type) => {
+  const formRef = type === 'user' ? userFormRef.value : adminFormRef.value
+  if (!formRef) return
+  
+  await formRef.validate(async (valid) => {
+    if (valid) {
+      loading.value = true
+      try {
+        // 模拟登录请求
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        if (type === 'user') {
+          // 普通用户登录
+          localStorage.setItem('token', 'user-token')
+          localStorage.setItem('userRole', 'user')
+          localStorage.setItem('username', formData.user.username)
+          ElMessage.success('登录成功')
+          await router.push('/home')
+          console.log('用户登录 - 当前路由路径:', router.currentRoute.value.path)
+        } else {
+          // 管理员登录
+          if (formData.admin.username === 'admin' && formData.admin.password === '123456') {
+            localStorage.setItem('token', 'admin-token')
+            localStorage.setItem('userRole', 'admin')
+            localStorage.setItem('username', 'admin')
+            ElMessage.success('管理员登录成功')
+            await router.push('/admin')
+            console.log('管理员登录 - 当前路由路径:', router.currentRoute.value.path)
+          } else {
+            ElMessage.error('管理员账号或密码错误')
+          }
+        }
+      } catch (error) {
+        console.error('登录错误:', error)
+        ElMessage.error('登录失败，请重试')
+      } finally {
+        loading.value = false
+      }
+    }
+  })
 }
 </script>
 

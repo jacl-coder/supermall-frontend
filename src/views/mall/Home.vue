@@ -156,6 +156,9 @@ import {
   ArrowRight, Picture, Star, List,
   CaretBottom, House, Box, KnifeFork, Goods, SetUp
 } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const searchText = ref('')
 const activeIndex = ref('home')
@@ -267,6 +270,15 @@ const showcaseItems = [
     image: 'https://example.com/showcase3.jpg'
   }
 ]
+
+const handleLogout = () => {
+  // 清除登录信息
+  localStorage.removeItem('token')
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('username')
+  // 跳转到登录页
+  router.push('/login')
+}
 </script>
 
 <style scoped lang="scss">
